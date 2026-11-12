@@ -337,6 +337,29 @@ test("restoring a browser history page leaves the vault locked", async () => {
   assertLocked(h);
 });
 
+test("searching an empty vault shows feedback and clearing restores its empty state", async () => {
+  const h = await harness();
+  h.activate();
+  const search = h.get("search-input");
+  const grid = h.get("entries-grid");
+  const emptyState = h.get("empty-state");
+  assert.equal(emptyState.classList.contains("hidden"), false);
+
+  search.value = "missing";
+  await search.dispatch("input");
+  assert.equal(grid.textContent, "没有匹配的条目，请尝试其他关键词。");
+  assert.equal(emptyState.classList.contains("hidden"), true);
+  assert.equal(h.get("entry-count").textContent, "0");
+  assert.equal(h.get("visible-count").textContent, "0");
+
+  for (const query of ["", "   "]) {
+    search.value = query;
+    await search.dispatch("input");
+    assert.equal(grid.children.length, 0);
+    assert.equal(emptyState.classList.contains("hidden"), false);
+  }
+});
+
 test("generated passwords honor length and include all four character groups", async () => {
   const h = await harness();
   const values = new Set();
