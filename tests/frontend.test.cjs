@@ -353,3 +353,21 @@ test("generated passwords honor length and include all four character groups", a
   assert.equal(h.generatePassword(4).length, 4);
   for (const length of [0, 3, 129, 4.5, NaN]) assert.throws(() => h.generatePassword(length));
 });
+
+test("generate button uses the selected length and closing the dialog restores the default", async () => {
+  const h = await harness();
+  h.activate();
+  h.openEntryDialog();
+
+  const selector = h.get("password-length");
+  for (const length of [16, 20, 24, 32]) {
+    selector.value = String(length);
+    await h.get("generate-password").dispatch("click");
+    assert.equal(h.get("entry-password").value.length, length);
+    assert.match(h.get("strength-text").textContent, new RegExp(`当前 ${length} 位`));
+    assert.equal(h.get("toast").textContent, `已生成 ${length} 位随机密码`);
+  }
+
+  h.get("entry-dialog").close();
+  assert.equal(selector.value, "20");
+});

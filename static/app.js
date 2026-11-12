@@ -1,6 +1,7 @@
 "use strict";
 
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+const DEFAULT_PASSWORD_LENGTH = 20;
 const state = {
   mode: "login", entries: [], username: "", csrfToken: "", epoch: 0,
   lastActivity: 0, sessionDeadline: 0, signingOut: false, authPending: false,
@@ -82,6 +83,7 @@ function clearEntryForm() {
   }
   $("#entry-password").type = "password";
   $("#toggle-password").textContent = "显示";
+  $("#password-length").value = String(DEFAULT_PASSWORD_LENGTH);
   updateStrength();
 }
 
@@ -343,7 +345,7 @@ function secureRandomInt(maxExclusive) {
   return values[0] % maxExclusive;
 }
 
-function generatePassword(length = 20) {
+function generatePassword(length = DEFAULT_PASSWORD_LENGTH) {
   if (!Number.isSafeInteger(length) || length < 4 || length > 128) throw new Error("密码长度须为 4-128 位");
   const groups = [
     "ABCDEFGHJKLMNPQRSTUVWXYZ",
@@ -417,9 +419,10 @@ $("#toggle-password").addEventListener("click", () => {
 });
 $("#generate-password").addEventListener("click", () => {
   if (!ensureVaultActive()) return;
-  $("#entry-password").value = generatePassword();
+  const password = generatePassword(Number($("#password-length").value));
+  $("#entry-password").value = password;
   updateStrength();
-  toast("已生成 20 位随机密码");
+  toast(`已生成 ${password.length} 位随机密码`);
 });
 $("#entry-password").addEventListener("input", updateStrength);
 $("#entry-form").addEventListener("submit", async (event) => {

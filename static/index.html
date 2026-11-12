@@ -81,7 +81,24 @@
         <label>网站名称<input id="entry-site" required maxlength="100" placeholder="例如：示例邮箱"></label>
         <label>账号<input id="entry-account" required maxlength="200" placeholder="name@example.com"></label>
         <label class="wide">网址（可选）<input id="entry-url" maxlength="500" placeholder="https://example.com"></label>
-        <label class="wide">密码<div class="password-row"><input id="entry-password" required maxlength="500" type="password" autocomplete="new-password"><button id="toggle-password" class="inside-button" type="button">显示</button><button id="generate-password" class="inside-button accent" type="button">生成</button></div><span id="strength-text" class="field-hint">建议至少 16 位并混合字符类型</span></label>
+        <div class="wide">
+          <label for="entry-password">密码</label>
+          <div class="password-row">
+            <input id="entry-password" required maxlength="500" type="password" autocomplete="new-password" aria-describedby="strength-text">
+            <button id="toggle-password" class="inside-button" type="button">显示</button>
+          </div>
+          <span id="strength-text" class="field-hint">建议至少 16 位并混合字符类型</span>
+          <div class="password-generator">
+            <label for="password-length">生成长度</label>
+            <select id="password-length">
+              <option value="16">16 位</option>
+              <option value="20" selected>20 位</option>
+              <option value="24">24 位</option>
+              <option value="32">32 位</option>
+            </select>
+            <button id="generate-password" class="button ghost" type="button">生成密码</button>
+          </div>
+        </div>
         <label class="wide">备注（可选）<textarea id="entry-notes" maxlength="1000" rows="4" placeholder="安全问题、恢复说明等虚构测试信息"></textarea></label>
       </div>
       <div class="dialog-actions"><button class="button ghost dialog-cancel" type="button">取消</button><button class="button primary" type="submit">保存条目</button></div>
