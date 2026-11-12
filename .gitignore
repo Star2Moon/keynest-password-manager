@@ -1,0 +1,34 @@
+# Runtime data and secrets
+data/
+*.db
+*.db-*
+*.sqlite*
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+
+# Python and tooling
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.tools/
+.qa/
+*.log
+
+# Private course material / archives
+*.zip
+*.wav
+*.m4a
+*.mp4
+
+# Editor and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

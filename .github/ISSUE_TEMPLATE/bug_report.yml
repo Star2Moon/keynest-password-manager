@@ -1,0 +1,27 @@
+name: 问题反馈
+description: 报告可复现的功能或文档问题（安全漏洞请按 SECURITY.md 私下协调）
+title: "[Bug] "
+body:
+  - type: checkboxes
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我没有包含真实密码、数据库或其他敏感信息，且已阅读安全策略
+          required: true
+  - type: textarea
+    attributes:
+      label: 问题与复现步骤
+      description: 请使用虚构测试数据，列出从启动到触发问题的步骤
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 预期与实际结果
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: 环境
+      description: 操作系统、Python、浏览器及项目版本/提交
+    validations:
+      required: true

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyNest 密钥巢</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="KeyNest 首页">
+      <span class="brand-mark" aria-hidden="true">K</span>
+      <span><strong>KeyNest</strong><small>密钥巢</small></span>
+    </a>
+    <span class="version-badge">本地演示版 · v3.1</span>
+  </header>
+
+  <main>
+    <section id="auth-view" class="auth-shell">
+      <div class="hero-copy">
+        <span class="eyebrow">YOUR PASSWORDS, ONE SAFE PLACE</span>
+        <h1>记住一个，<br><em>守护所有。</em></h1>
+        <p>集中管理网站账号、密码与备注。开源学习项目，请勿存放真实凭据。</p>
+        <ul class="feature-list">
+          <li><span>01</span> 统一的密码条目管理</li>
+          <li><span>02</span> 本地 SQLite 数据存储</li>
+          <li><span>03</span> 浏览器安全随机密码生成</li>
+        </ul>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-tabs" role="tablist">
+          <button class="tab active" type="button" data-auth-tab="login">登录</button>
+          <button class="tab" type="button" data-auth-tab="register">注册</button>
+        </div>
+        <div class="card-heading">
+          <span class="mini-mark">K</span>
+          <div><h2 id="auth-title">欢迎回来</h2><p id="auth-subtitle">登录后打开你的密码保险库</p></div>
+        </div>
+        <form id="auth-form">
+          <label>用户名<input id="auth-username" name="username" autocomplete="username" minlength="3" maxlength="32" required placeholder="请输入用户名"></label>
+          <label>主密码<input id="auth-password" name="password" type="password" autocomplete="current-password" maxlength="128" required placeholder="请输入主密码"></label>
+          <p id="auth-hint" class="field-hint">注册时主密码需 12-128 位并至少包含三类字符。</p>
+          <button class="button primary full" type="submit"><span id="auth-submit-text">进入保险库</span><span aria-hidden="true">→</span></button>
+        </form>
+      </div>
+    </section>
+
+    <section id="vault-view" class="vault-shell hidden">
+      <div class="vault-topline">
+        <div><span class="eyebrow">PASSWORD VAULT</span><h1>我的保险库</h1><p>欢迎，<strong id="current-user"></strong>。妥善管理每一把数字钥匙。</p></div>
+        <div class="top-actions"><button id="audit-button" class="button ghost" type="button">审计日志</button><button id="logout-button" class="button ghost" type="button">退出登录</button><button id="add-button" class="button primary" type="button">＋ 新建条目</button></div>
+      </div>
+
+      <div class="stats-strip">
+        <div><span>已保存条目</span><strong id="entry-count">0</strong></div>
+        <div><span>当前筛选结果</span><strong id="visible-count">0</strong></div>
+        <div class="security-note"><span class="pulse"></span><span><b>AES-256-GCM 已启用</b><small>密文完整性校验与会话保护</small></span></div>
+      </div>
+
+      <div class="vault-controls">
+        <label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="搜索网站、账号或备注"></label>
+        <button id="refresh-button" class="icon-button" type="button" aria-label="刷新">↻</button>
+      </div>
+
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon">＋</div><h2>保险库还是空的</h2><p>创建第一条登录信息，开始整理你的数字生活。</p><button id="empty-add-button" class="button primary" type="button">新建条目</button>
+      </div>
+      <div id="entries-grid" class="entries-grid"></div>
+    </section>
+  </main>
+
+  <dialog id="entry-dialog">
+    <form id="entry-form" method="dialog">
+      <div class="dialog-heading"><div><span class="eyebrow">VAULT ITEM</span><h2 id="dialog-title">新建条目</h2></div><button class="dialog-close" type="button" aria-label="关闭">×</button></div>
+      <input id="entry-id" type="hidden">
+      <div class="form-grid">
+        <label>网站名称<input id="entry-site" required maxlength="100" placeholder="例如：示例邮箱"></label>
+        <label>账号<input id="entry-account" required maxlength="200" placeholder="name@example.com"></label>
+        <label class="wide">网址（可选）<input id="entry-url" maxlength="500" placeholder="https://example.com"></label>
+        <label class="wide">密码<div class="password-row"><input id="entry-password" required maxlength="500" type="password" autocomplete="new-password"><button id="toggle-password" class="inside-button" type="button">显示</button><button id="generate-password" class="inside-button accent" type="button">生成</button></div><span id="strength-text" class="field-hint">建议至少 16 位并混合字符类型</span></label>
+        <label class="wide">备注（可选）<textarea id="entry-notes" maxlength="1000" rows="4" placeholder="安全问题、恢复说明等虚构测试信息"></textarea></label>
+      </div>
+      <div class="dialog-actions"><button class="button ghost dialog-cancel" type="button">取消</button><button class="button primary" type="submit">保存条目</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="audit-dialog">
+    <div class="audit-panel">
+      <div class="dialog-heading"><div><span class="eyebrow">SECURITY AUDIT</span><h2>安全审计日志</h2></div><button id="audit-close" class="dialog-close" type="button" aria-label="关闭">×</button></div>
+      <p class="audit-intro">仅记录操作类型、条目标识和时间，不记录账号、主密码或保险库内容。</p>
+      <div id="audit-list" class="audit-list"></div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

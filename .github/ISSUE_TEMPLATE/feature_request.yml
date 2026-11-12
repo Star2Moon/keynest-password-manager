@@ -1,0 +1,18 @@
+name: 改进建议
+description: 提议功能、测试或文档改进
+title: "[Feature] "
+body:
+  - type: textarea
+    attributes:
+      label: 要解决的问题
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 建议方案与安全影响
+      description: 涉及密码、加密或数据迁移时，请说明风险与兼容性
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 如何验证
