@@ -299,7 +299,7 @@ function renderEntries() {
   const grid = $("#entries-grid");
   grid.replaceChildren(...visible.map(entryCard));
   $("#empty-state").classList.toggle("hidden", state.entries.length !== 0 || Boolean(query));
-  if (!visible.length && state.entries.length && query) {
+  if (!visible.length && query) {
     const note = document.createElement("p");
     note.className = "empty-state";
     note.textContent = "没有匹配的条目，请尝试其他关键词。";
