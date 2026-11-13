@@ -84,6 +84,7 @@ function clearEntryForm() {
   }
   $("#entry-password").type = "password";
   $("#toggle-password").textContent = "显示";
+  $("#toggle-password").ariaPressed = "false";
   $("#password-length").value = String(DEFAULT_PASSWORD_LENGTH);
   updateStrength();
 }
@@ -249,6 +250,8 @@ function entryCard(entry) {
   const icon = document.createElement("span");
   icon.className = "site-icon";
   icon.textContent = (entry.site || "K").trim().slice(0, 1).toUpperCase();
+  // The site name is already announced by the card heading; keep the initial decorative.
+  icon.ariaHidden = "true";
   const title = document.createElement("div");
   title.className = "entry-title";
   const h3 = document.createElement("h3");
@@ -269,6 +272,7 @@ function entryCard(entry) {
     revealed = !revealed;
     secret.textContent = revealed ? entry.password : maskedSecret(entry.password);
     reveal.textContent = revealed ? "隐藏" : "显示";
+    reveal.ariaPressed = String(revealed);
   });
   const copy = createButton("复制", "tiny-action", async () => {
     if (!active()) return;
@@ -277,6 +281,11 @@ function entryCard(entry) {
       if (active()) toast("密码已复制");
     } catch { if (active()) toast("复制失败，请检查浏览器剪贴板权限", true); }
   });
+  // Every card renders identical "显示/复制/编辑/删除" buttons; scope each
+  // accessible name to its entry so screen readers can tell them apart.
+  reveal.ariaLabel = `显示 ${entry.site} 的密码`;
+  reveal.ariaPressed = "false";
+  copy.ariaLabel = `复制 ${entry.site} 的密码`;
   secretRow.append(secret, reveal, copy);
 
   const meta = document.createElement("div");
@@ -285,10 +294,11 @@ function entryCard(entry) {
 
   const actions = document.createElement("div");
   actions.className = "entry-actions";
-  actions.append(
-    createButton("编辑", "", () => { if (active()) openEntryDialog(entry); }),
-    createButton("删除", "delete", () => { if (active()) void removeEntry(entry); }),
-  );
+  const editButton = createButton("编辑", "", () => { if (active()) openEntryDialog(entry); });
+  const deleteButton = createButton("删除", "delete", () => { if (active()) void removeEntry(entry); });
+  editButton.ariaLabel = `编辑 ${entry.site}`;
+  deleteButton.ariaLabel = `删除 ${entry.site}`;
+  actions.append(editButton, deleteButton);
   article.append(head, secretRow, meta, actions);
   return article;
 }
@@ -324,6 +334,7 @@ function openEntryDialog(entry = null) {
   $("#entry-notes").value = entry?.notes || "";
   $("#entry-password").type = "password";
   $("#toggle-password").textContent = "显示";
+  $("#toggle-password").ariaPressed = "false";
   updateStrength();
   $("#entry-dialog").showModal();
   $("#entry-site").focus();
@@ -420,6 +431,7 @@ $("#toggle-password").addEventListener("click", () => {
   const input = $("#entry-password");
   input.type = input.type === "password" ? "text" : "password";
   $("#toggle-password").textContent = input.type === "password" ? "显示" : "隐藏";
+  $("#toggle-password").ariaPressed = String(input.type === "text");
 });
 $("#generate-password").addEventListener("click", () => {
   if (!ensureVaultActive()) return;

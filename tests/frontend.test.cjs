@@ -463,3 +463,44 @@ test("generate button uses the selected length and closing the dialog restores t
   h.get("entry-dialog").close();
   assert.equal(selector.value, "20");
 });
+
+test("entry actions are distinguishable and expose pressed state for screen readers", async () => {
+  const h = await harness();
+  h.activate("alice", [entry()]);
+  const card = h.get("entries-grid").children[0];
+  const [icon] = card.children[0].children;
+  const [, reveal, copy] = card.children[1].children;
+  const [edit, remove] = card.children[3].children;
+  assert.equal(icon.ariaHidden, "true");
+  assert.equal(reveal.ariaLabel, "显示 Example 的密码");
+  assert.equal(reveal.ariaPressed, "false");
+  assert.equal(copy.ariaLabel, "复制 Example 的密码");
+  assert.equal(edit.ariaLabel, "编辑 Example");
+  assert.equal(remove.ariaLabel, "删除 Example");
+  await reveal.dispatch("click");
+  assert.equal(reveal.ariaPressed, "true");
+  assert.equal(reveal.textContent, "隐藏");
+  await reveal.dispatch("click");
+  assert.equal(reveal.ariaPressed, "false");
+  assert.equal(reveal.textContent, "显示");
+});
+
+test("password visibility toggle exposes its pressed state", async () => {
+  const h = await harness();
+  h.activate();
+  h.openEntryDialog(entry());
+  const toggle = h.get("toggle-password");
+  assert.equal(toggle.ariaPressed, "false");
+  await toggle.dispatch("click");
+  assert.equal(toggle.ariaPressed, "true");
+  assert.equal(h.get("entry-password").type, "text");
+  await toggle.dispatch("click");
+  assert.equal(toggle.ariaPressed, "false");
+  assert.equal(h.get("entry-password").type, "password");
+  h.get("entry-dialog").close();
+  assert.equal(h.get("toggle-password").ariaPressed, "false");
+});
+
+test("search input announces its purpose without a visible label", () => {
+  assert.match(html, /id="search-input"[^>]*aria-label="搜索网站、账号或备注"/);
+});

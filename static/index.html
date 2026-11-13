@@ -62,7 +62,7 @@
       </div>
 
       <div class="vault-controls">
-        <label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="搜索网站、账号或备注"></label>
+        <label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" aria-label="搜索网站、账号或备注" placeholder="搜索网站、账号或备注"></label>
         <button id="refresh-button" class="icon-button" type="button" aria-label="刷新">↻</button>
       </div>
 
@@ -85,7 +85,7 @@
           <label for="entry-password">密码</label>
           <div class="password-row">
             <input id="entry-password" required maxlength="500" type="password" autocomplete="new-password" aria-describedby="strength-text">
-            <button id="toggle-password" class="inside-button" type="button">显示</button>
+            <button id="toggle-password" class="inside-button" type="button" aria-pressed="false">显示</button>
           </div>
           <span id="strength-text" class="field-hint">建议至少 16 位并混合字符类型</span>
           <div class="password-generator">
