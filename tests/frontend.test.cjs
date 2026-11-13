@@ -185,6 +185,75 @@ test("protected 401 clears the vault instead of leaving plaintext onscreen", asy
   assert.equal(h.get("toast").textContent, "登录已过期");
 });
 
+test("an older refresh finishing last cannot overwrite the latest entries", async () => {
+  const h = await harness();
+  h.activate();
+  const older = deferred();
+  const newer = deferred();
+  let calls = 0;
+  h.setHandler(() => (++calls === 1 ? older.promise : newer.promise));
+  const olderRefresh = h.loadEntries();
+  const newerRefresh = h.loadEntries();
+
+  newer.resolve(response({ entries: [{ ...entry(), site: "Updated example" }] }));
+  await newerRefresh;
+  assert.equal(h.state.entries[0].site, "Updated example");
+
+  older.resolve(response({ entries: [entry()] }));
+  await olderRefresh;
+  assert.equal(h.state.entries[0].site, "Updated example");
+  assert.match(h.get("entries-grid").textContent, /Updated example/);
+  assert.equal(h.get("entry-count").textContent, "1");
+  assert.equal(h.get("visible-count").textContent, "1");
+});
+
+test("an older refresh finishing first waits for the latest requested snapshot", async () => {
+  const h = await harness();
+  h.activate();
+  const older = deferred();
+  const newer = deferred();
+  let calls = 0;
+  h.setHandler(() => (++calls === 1 ? older.promise : newer.promise));
+  const olderRefresh = h.loadEntries();
+  const newerRefresh = h.loadEntries();
+
+  older.resolve(response({ entries: [entry()] }));
+  await olderRefresh;
+  assert.equal(h.state.entries.length, 0);
+  assert.equal(h.get("entries-grid").children.length, 0);
+
+  newer.resolve(response({ entries: [{ ...entry(), site: "Updated example" }] }));
+  await newerRefresh;
+  assert.equal(h.state.entries[0].site, "Updated example");
+  assert.match(h.get("entries-grid").textContent, /Updated example/);
+});
+
+test("a delayed manual refresh cannot restore a card after deletion refreshes the vault", async () => {
+  const h = await harness();
+  h.activate("alice", [entry()]);
+  const older = deferred();
+  let entryReads = 0;
+  h.setHandler(async (url, options) => {
+    if (options.method === "DELETE") return response({ message: "deleted" });
+    if (url === "/api/entries" && ++entryReads === 1) return older.promise;
+    return response({ entries: [] });
+  });
+  const refreshing = h.get("refresh-button").dispatch("click");
+  const remove = h.get("entries-grid").children[0].children[3].children[1];
+  await remove.dispatch("click");
+  await tick();
+  assert.equal(entryReads, 2);
+  assert.equal(h.state.entries.length, 0);
+
+  older.resolve(response({ entries: [entry()] }));
+  await refreshing;
+  assert.equal(h.state.entries.length, 0);
+  assert.equal(h.get("entries-grid").children.length, 0);
+  assert.equal(h.get("entry-count").textContent, "0");
+  assert.equal(h.get("visible-count").textContent, "0");
+  assert.equal(h.get("empty-state").classList.contains("hidden"), false);
+});
+
 test("late entry response cannot restore data after locking", async () => {
   const h = await harness();
   h.activate();

@@ -9,6 +9,7 @@ const state = {
 const $ = (selector) => document.querySelector(selector);
 const pendingRequests = new Set();
 let lockTimer;
+let entriesRequestId = 0;
 
 function staleRequestError() {
   const error = new Error("会话已改变，请重新操作");
@@ -215,8 +216,11 @@ async function showAudit() {
 async function loadEntries() {
   if (!ensureVaultActive()) return;
   const epoch = state.epoch;
+  const requestId = ++entriesRequestId;
   const data = await api("/api/entries");
   if (epoch !== state.epoch || !ensureVaultActive()) return;
+  // Only the latest requested snapshot may update the list within this session.
+  if (requestId !== entriesRequestId) return;
   state.entries = data.entries || [];
   renderEntries();
 }
